@@ -50,6 +50,11 @@ if ($menuItems === false) {
                 <span class="date-label"><?= htmlspecialchars($dateLabel) ?></span>
                 <span class="date-full"><?= htmlspecialchars($displayDate) ?></span>
             </p>
+
+            <div class="calendar">
+                <div class="calendarButton">
+                    <a>calendar</a>
+                </div>
             
             <div class="date-navigation">
                 <a href="index.php?offset=<?= $dateOffset-1 ?>" class="nav-btn">&laquo; Previous Day</a>
