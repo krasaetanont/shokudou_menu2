@@ -22,15 +22,10 @@ $dateLabel = DateUtils::getRelativeDateLabel($dateOffset);
 // Get database connection
 $db = DatabaseConfig::getInstance()->getConnection();
 
-// Fetch menu items for the target date
-$query = "SELECT * FROM menu_items WHERE date = :date";
-$stmt = $db->prepare($query);
-$stmt->bindValue(':date', $targetDate->format('Y-m-d'));
-$stmt->execute();
-$menuItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
-if ($menuItems === false) {
-    $menuItems = [];
-}
+$stmt = $db->prepare("SELECT id, name, price, available, tag FROM menu WHERE available_date = ? ORDER BY name");
+$stmt->execute([$targetDate]);
+$menuItems = $stmt->fetchAll();
+?>
 ?>
 
 

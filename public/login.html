@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Shokudou</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-container">
+            <h1>Login to Shokudou</h1>
+            <?php if (isset($_GET['error'])): ?>
+                <p class="error">Authentication failed. Please try again.</p>
+            <?php endif; ?>
+            <a href="api/login.php" class="login-button">
+                Login with Google
+            </a>
+        </div>
+    </div>
+</body>
+</html>
