@@ -1,33 +1,78 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
+// First, let's enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-use App\Utils\DateUtils;
-use App\Config\DatabaseConfig;
+// Make sure the path to the autoloader is correct
+$autoloaderPath = __DIR__ . '/../vendor/autoload.php';
+if (!file_exists($autoloaderPath)) {
+    die("Autoloader not found at: $autoloaderPath");
+}
+
+require_once $autoloaderPath;
+
+// Simple function to safely get a database connection
+function getDbConnection() {
+    try {
+        // Using direct database connection for simplicity
+        $host = getenv('DB_HOST') ?: 'localhost';
+        $dbname = getenv('DB_NAME') ?: 'shokudou';
+        $username = getenv('DB_USER') ?: 'postgres';
+        $password = getenv('DB_PASS') ?: '';
+        $port = getenv('DB_PORT') ?: '5432';
+
+        $dsn = "pgsql:host={$host};port={$port};dbname={$dbname};";
+        
+        $db = new PDO($dsn, $username, $password, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+        ]);
+        
+        return $db;
+    } catch (PDOException $e) {
+        die("Database connection failed: " . $e->getMessage());
+    }
+}
 
 // Set default timezone
-DateUtils::setDefaultTimezone('Asia/Tokyo');
+date_default_timezone_set('Asia/Tokyo');
 
 // Determine which date to show
 $dateOffset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
 
 // Get target date
-$targetDate = DateUtils::getOffsetDate($dateOffset);
+$targetDate = new DateTime('now');
+if ($dateOffset !== 0) {
+    $targetDate->modify("{$dateOffset} days");
+}
 
 // Format date for display
-$displayDate = DateUtils::formatDateForDisplay($targetDate);
+$displayDate = $targetDate->format('Y-m-d');
 
 // Get relative date label
-$dateLabel = DateUtils::getRelativeDateLabel($dateOffset);
+if ($dateOffset < 0) {
+    $dateLabel = abs($dateOffset) . ' day(s) ago';
+} elseif ($dateOffset > 0) {
+    $dateLabel = $dateOffset . ' day(s) from now';
+} else {
+    $dateLabel = 'Today';
+}
 
 // Get database connection
-$db = DatabaseConfig::getInstance()->getConnection();
+$db = getDbConnection();
 
+// Format date for database query
+$formattedDate = $targetDate->format('Y-m-d');
+
+// Get menu items for the date
 $stmt = $db->prepare("SELECT id, name, price, available, tag FROM menu WHERE available_date = ? ORDER BY name");
-$stmt->execute([$targetDate]);
+$stmt->execute([$formattedDate]);
 $menuItems = $stmt->fetchAll();
-?>
-?>
 
+// Check if user is logged in (simplified for example)
+$isLoggedIn = isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] === 'true';
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -36,21 +81,26 @@ $menuItems = $stmt->fetchAll();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shokudou - Today's Menu</title>
     <link rel="stylesheet" href="assets/style.css">
-</head><body>
+</head>
+<body>
     <div class="container">
         <header>
             <h1>Akashi Shokudou</h1>
-          <div class="loginButton">
-            <a href="">login</a>
-          </div>
+            <div class="loginButton">
+                <?php if ($isLoggedIn): ?>
+                    <a href="api/logout.php">Logout</a>
+                <?php else: ?>
+                    <a href="login.php">Login</a>
+                <?php endif; ?>
+            </div>
             <p class="date">
                 <span class="date-label"><?= htmlspecialchars($dateLabel) ?></span>
                 <span class="date-full"><?= htmlspecialchars($displayDate) ?></span>
             </p>
 
             <div class="calendar">
-              <a href="">calendar</a>
-          </div>
+                <a href="calendar.php">Calendar</a>
+            </div>
             <div class="date-navigation">
                 <a href="index.php?offset=<?= $dateOffset-1 ?>" class="nav-btn">&laquo; Previous Day</a>
                 <a href="index.php" class="nav-btn <?= $dateOffset === 0 ? 'active' : '' ?>">Today</a>
@@ -60,7 +110,7 @@ $menuItems = $stmt->fetchAll();
         
         <?php if (empty($menuItems)): ?>
             <div class="no-menu">
-                <p>No menu items available for today. Please check back later.</p>
+                <p>No menu items available for this day. Please check back later.</p>
             </div>
         <?php else: ?>
             <table id="menu-table">
@@ -70,7 +120,9 @@ $menuItems = $stmt->fetchAll();
                         <th>Price</th>
                         <th>Set</th>
                         <th>Status</th>
+                        <?php if ($isLoggedIn): ?>
                         <th>Action</th>
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -79,7 +131,7 @@ $menuItems = $stmt->fetchAll();
                         <td><?= htmlspecialchars($item['name']) ?></td>
                         <td>¥<?= number_format($item['price']/100, 0) ?></td>
                         <td>
-                            <?php if ($item['tag']): ?>
+                            <?php if (!empty($item['tag'])): ?>
                                 <span class="tag"><?= htmlspecialchars($item['tag']) ?></span>
                             <?php else: ?>
                                 <span class="tag none">No Tags</span>
@@ -90,11 +142,13 @@ $menuItems = $stmt->fetchAll();
                                 <?= $item['available'] ? 'Available' : 'Unavailable' ?>
                             </span>
                         </td>
+                        <?php if ($isLoggedIn): ?>
                         <td>
                             <button class="toggle-status" data-id="<?= $item['id'] ?>" data-status="<?= $item['available'] ? 'true' : 'false' ?>">
                                 Toggle Status
                             </button>
                         </td>
+                        <?php endif; ?>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -103,7 +157,7 @@ $menuItems = $stmt->fetchAll();
     </div>
     <div class="footer">
         <p>&copy; 2025 Akashi Shokudou. All rights reserved.</p>
-        <p>Powered by <a href="">Shokudou</a></p>
+        <p>Powered by <a href="https://shokudou.example.com">Shokudou</a></p>
     </div>
     <script src="assets/script.js"></script>
 </body>

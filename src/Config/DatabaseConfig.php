@@ -1,8 +1,11 @@
 <?php
-// src/config/database.php
+namespace App\Config;
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 use Dotenv\Dotenv;
+use PDO;
+use Exception;
 
 class DatabaseConfig {
     private static $instance = null;
@@ -27,7 +30,7 @@ class DatabaseConfig {
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES => false,
             ]);
-        } catch (PDOException $e) {
+        } catch (PDO\PDOException $e) {
             error_log('Database Connection Error: ' . $e->getMessage());
             throw new Exception('Database connection failed');
         }

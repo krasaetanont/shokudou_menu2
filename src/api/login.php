@@ -1,10 +1,14 @@
 <?php
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+use Dotenv\Dotenv;
+use Google\Client as Google_Client;
+
 // Load environment variables
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
+$dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
 $dotenv->load();
 
+// Create a new Google client
 $client = new Google_Client();
 $client->setClientId($_ENV['GOOGLE_CLIENT_ID']);
 $client->setClientSecret($_ENV['GOOGLE_CLIENT_SECRET']);
@@ -12,6 +16,31 @@ $client->setRedirectUri($_ENV['GOOGLE_REDIRECT_URI']);
 $client->addScope("email");
 $client->addScope("profile");
 
-$auth_url = $client->createAuthUrl();
-header('Location: ' . filter_var($auth_url, FILTER_SANITIZE_URL));
-exit;
+// Check if we have a code from Google
+if (isset($_GET['code'])) {
+    // Exchange the code for an access token
+    $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
+    $client->setAccessToken($token);
+    
+    // Get the user's profile info
+    $google_oauth = new Google\Service\Oauth2($client);
+    $google_account_info = $google_oauth->userinfo->get();
+    
+    // Store user info in session
+    session_start();
+    $_SESSION['user_id'] = $google_account_info->id;
+    $_SESSION['user_email'] = $google_account_info->email;
+    $_SESSION['user_name'] = $google_account_info->name;
+    
+    // Set a cookie for easy front-end checking
+    setcookie('user_logged_in', 'true', time() + (86400 * 30), "/"); // 30 days
+    
+    // Redirect to homepage
+    header('Location: /index.php');
+    exit;
+} else {
+    // If we don't have a code, get authentication URL
+    $auth_url = $client->createAuthUrl();
+    header('Location: ' . filter_var($auth_url, FILTER_SANITIZE_URL));
+    exit;
+}
