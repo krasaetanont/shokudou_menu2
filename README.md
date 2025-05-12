@@ -1,0 +1,1 @@
+shokudou_menu app
