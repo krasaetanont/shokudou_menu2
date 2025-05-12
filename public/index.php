@@ -40,22 +40,22 @@ if ($menuItems === false) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shokudou - Today's Menu</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-</head>
-<body>
+    <link rel="stylesheet" href="assets/style.css">
+</head><body>
     <div class="container">
         <header>
             <h1>Akashi Shokudou</h1>
+          <div class="loginButton">
+            <a href="">login</a>
+          </div>
             <p class="date">
                 <span class="date-label"><?= htmlspecialchars($dateLabel) ?></span>
                 <span class="date-full"><?= htmlspecialchars($displayDate) ?></span>
             </p>
 
             <div class="calendar">
-                <div class="calendarButton">
-                    <a>calendar</a>
-                </div>
-            
+              <a href="">calendar</a>
+          </div>
             <div class="date-navigation">
                 <a href="index.php?offset=<?= $dateOffset-1 ?>" class="nav-btn">&laquo; Previous Day</a>
                 <a href="index.php" class="nav-btn <?= $dateOffset === 0 ? 'active' : '' ?>">Today</a>
@@ -106,7 +106,10 @@ if ($menuItems === false) {
             </table>
         <?php endif; ?>
     </div>
-    
-    <script src="assets/js/script.js"></script>
+    <div class="footer">
+        <p>&copy; 2025 Akashi Shokudou. All rights reserved.</p>
+        <p>Powered by <a href="">Shokudou</a></p>
+    </div>
+    <script src="assets/script.js"></script>
 </body>
 </html>
