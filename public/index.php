@@ -91,9 +91,9 @@ $isLoggedIn = isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] ==
             <h1>Akashi Shokudou</h1>
             <div class="loginButton">
                 <?php if ($isLoggedIn): ?>
-                    <a href="/src/api/logout.php">Logout</a>
+                    <a href="/shokudouMenu2/src/api/logout.php">Logout</a>
                 <?php else: ?>
-                    <a href="login.html">Login</a>
+                    <a href="/shokudouMenu2/src/pages/login.html">Login</a>
                 <?php endif; ?>
             </div>
         </header>
@@ -104,7 +104,7 @@ $isLoggedIn = isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] ==
             </p>
 
             <div class="calendar">
-                <a href="calendar.php">Calendar</a>
+                <a href="">Calendar</a>
             </div>
 
             <div class="date-navigation">
