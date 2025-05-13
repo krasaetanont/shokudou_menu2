@@ -104,7 +104,16 @@ $isLoggedIn = isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] ==
             </p>
 
             <div class="calendar">
-                <a href="">Calendar</a>
+                <button>calendar</button>
+                <div class="calendar-popup">
+                    <div class="calendar-header">
+                        <h2>Calendar</h2>
+                        <button class="close-calendar">X</button>
+                    </div>
+                    <div class="calendar-body">
+                        <!-- Calendar will be generated here -->
+                        <p>Calendar functionality is not implemented yet.</p>
+                    </div>
             </div>
 
             <div class="date-navigation">
@@ -113,7 +122,7 @@ $isLoggedIn = isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] ==
                 <a href="index.php?offset=<?= $dateOffset+1 ?>" class="nav-btn">Next Day &raquo;</a>
             </div>
         </div>
-        
+
         <?php if (empty($menuItems)): ?>
             <div class="no-menu">
                 <p>No menu items available for this day. Please check back later.</p>
