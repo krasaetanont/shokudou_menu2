@@ -4,22 +4,25 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Make sure the path to the autoloader is correct
-$autoloaderPath = __DIR__ . '/../vendor/autoload.php';
-if (!file_exists($autoloaderPath)) {
-    die("Autoloader not found at: $autoloaderPath");
-}
+// $autoloaderPath = __DIR__ . '/../vendor/autoload.php';
+// if (!file_exists($autoloaderPath)) {
+//     die("Autoloader not found at: $autoloaderPath");
+// }
 
-require_once $autoloaderPath;
+// require_once $autoloaderPath;
+require_once __DIR__ . '/../vendor/autoload.php';
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->load();
 
 // Simple function to safely get a database connection
 function getDbConnection() {
     try {
         // Using direct database connection for simplicity
-        $host = getenv('DB_HOST') ?: 'localhost';
-        $dbname = getenv('DB_NAME') ?: 'shokudou';
-        $username = getenv('DB_USER') ?: 'postgres';
-        $password = getenv('DB_PASS') ?: '';
-        $port = getenv('DB_PORT') ?: '5432';
+        $host = $_ENV['DB_HOST'];
+        $dbname = $_ENV['DB_NAME'];
+        $username = $_ENV['DB_USER'];
+        $password = $_ENV['DB_PASS'];
+        $port = $_ENV['DB_PORT'] ?: '5432';
 
         $dsn = "pgsql:host={$host};port={$port};dbname={$dbname};";
         
@@ -88,11 +91,13 @@ $isLoggedIn = isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] ==
             <h1>Akashi Shokudou</h1>
             <div class="loginButton">
                 <?php if ($isLoggedIn): ?>
-                    <a href="api/logout.php">Logout</a>
+                    <a href="/src/api/logout.php">Logout</a>
                 <?php else: ?>
-                    <a href="login.php">Login</a>
+                    <a href="login.html">Login</a>
                 <?php endif; ?>
             </div>
+        </header>
+        <div class="datePart">
             <p class="date">
                 <span class="date-label"><?= htmlspecialchars($dateLabel) ?></span>
                 <span class="date-full"><?= htmlspecialchars($displayDate) ?></span>
@@ -101,12 +106,13 @@ $isLoggedIn = isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] ==
             <div class="calendar">
                 <a href="calendar.php">Calendar</a>
             </div>
+
             <div class="date-navigation">
                 <a href="index.php?offset=<?= $dateOffset-1 ?>" class="nav-btn">&laquo; Previous Day</a>
                 <a href="index.php" class="nav-btn <?= $dateOffset === 0 ? 'active' : '' ?>">Today</a>
                 <a href="index.php?offset=<?= $dateOffset+1 ?>" class="nav-btn">Next Day &raquo;</a>
             </div>
-        </header>
+        </div>
         
         <?php if (empty($menuItems)): ?>
             <div class="no-menu">
