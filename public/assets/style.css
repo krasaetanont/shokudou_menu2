@@ -36,18 +36,54 @@ body {
 
 /* Header */
 header {
-    text-align: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.loginButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--primary-color);
+    border-radius: 10px;
+    margin: 10px 2vw;
+}
+.loginButton a {
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
 }
 
 header h1 {
+    margin-left: 2vw;
     color: var(--primary-color);
     font-size: 2.5rem;
     margin-bottom: 10px;
 }
 
+.calendar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+}
+
+.calendar a {
+    text-decoration: none;
+    color: var(--secondary-color);
+    font-size: 1.2rem;
+    padding: 10px 20px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.calendar a:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
 .date {
     font-size: 1.2rem;
     color: var(--secondary-color);
