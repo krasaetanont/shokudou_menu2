@@ -4,12 +4,6 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Make sure the path to the autoloader is correct
-// $autoloaderPath = __DIR__ . '/../vendor/autoload.php';
-// if (!file_exists($autoloaderPath)) {
-//     die("Autoloader not found at: $autoloaderPath");
-// }
-
-// require_once $autoloaderPath;
 require_once __DIR__ . '/../vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
@@ -43,10 +37,25 @@ date_default_timezone_set('Asia/Tokyo');
 
 // Determine which date to show
 $dateOffset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
+$specificDate = isset($_GET['date']) ? $_GET['date'] : null;
 
 // Get target date
 $targetDate = new DateTime('now');
-if ($dateOffset !== 0) {
+
+if ($specificDate) {
+    // If a specific date is provided via calendar selection
+    try {
+        $targetDate = new DateTime($specificDate);
+        // Calculate offset from today for relative date label
+        $today = new DateTime('now');
+        $interval = $targetDate->diff($today);
+        $dateOffset = $interval->days * ($interval->invert ? 1 : -1);
+    } catch (Exception $e) {
+        // Invalid date format, fall back to current date
+        $dateOffset = 0;
+    }
+} elseif ($dateOffset !== 0) {
+    // Use offset navigation
     $targetDate->modify("{$dateOffset} days");
 }
 
@@ -84,6 +93,7 @@ $isLoggedIn = isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] ==
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shokudou - Today's Menu</title>
     <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="assets/calendar.css">
 </head>
 <body>
     <div class="container">
@@ -91,9 +101,9 @@ $isLoggedIn = isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] ==
             <h1>Akashi Shokudou</h1>
             <div class="loginButton">
                 <?php if ($isLoggedIn): ?>
-                    <a href="/shokudouMenu2/src/api/logout.php">Logout</a>
+                    <a href="/src/api/logout.php">Logout</a>
                 <?php else: ?>
-                    <a href="/shokudouMenu2/src/pages/login.html">Login</a>
+                    <a href="login.html">Login</a>
                 <?php endif; ?>
             </div>
         </header>
@@ -104,16 +114,7 @@ $isLoggedIn = isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] ==
             </p>
 
             <div class="calendar">
-                <button>calendar</button>
-                <div class="calendar-popup">
-                    <div class="calendar-header">
-                        <h2>Calendar</h2>
-                        <button class="close-calendar">X</button>
-                    </div>
-                    <div class="calendar-body">
-                        <!-- Calendar will be generated here -->
-                        <p>Calendar functionality is not implemented yet.</p>
-                    </div>
+                <a href="#" id="calendar-button">Calendar</a>
             </div>
 
             <div class="date-navigation">
@@ -122,7 +123,7 @@ $isLoggedIn = isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] ==
                 <a href="index.php?offset=<?= $dateOffset+1 ?>" class="nav-btn">Next Day &raquo;</a>
             </div>
         </div>
-
+        
         <?php if (empty($menuItems)): ?>
             <div class="no-menu">
                 <p>No menu items available for this day. Please check back later.</p>
@@ -175,5 +176,6 @@ $isLoggedIn = isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] ==
         <p>Powered by <a href="https://shokudou.example.com">Shokudou</a></p>
     </div>
     <script src="assets/script.js"></script>
+    <script src="assets/calendar.js"></script>
 </body>
 </html>
