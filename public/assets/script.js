@@ -6,10 +6,37 @@ document.addEventListener('DOMContentLoaded', function() {
     // Select all toggle buttons
     const toggleButtons = document.querySelectorAll('.toggle-status');
     
+    // Get the login popup
+    const loginPopup = document.getElementById('loginPopup');
+    
+    // Set up cancel button for login popup
+    const cancelLoginBtn = document.getElementById('cancelLogin');
+    if (cancelLoginBtn) {
+        cancelLoginBtn.addEventListener('click', function() {
+            loginPopup.style.display = 'none';
+        });
+    }
+    
+    // Click outside to close login popup
+    window.addEventListener('click', function(event) {
+        if (event.target === loginPopup) {
+            loginPopup.style.display = 'none';
+        }
+    });
+    
     // Add click event listeners to all toggle buttons
     toggleButtons.forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
+            
+            // Check if user is logged in
+            const isLoggedIn = this.getAttribute('data-is-logged-in') === 'true';
+            
+            if (!isLoggedIn) {
+                // Show login popup for non-logged in users
+                loginPopup.style.display = 'flex';
+                return;
+            }
             
             // Get item data from button attributes
             const itemId = this.getAttribute('data-id');

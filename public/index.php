@@ -136,9 +136,7 @@ $isLoggedIn = isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] ==
                         <th>Price</th>
                         <th>Set</th>
                         <th>Status</th>
-                        <?php if ($isLoggedIn): ?>
                         <th>Action</th>
-                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -158,19 +156,33 @@ $isLoggedIn = isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] ==
                                 <?= $item['available'] ? 'Available' : 'Unavailable' ?>
                             </span>
                         </td>
-                        <?php if ($isLoggedIn): ?>
                         <td>
-                            <button class="toggle-status" data-id="<?= $item['id'] ?>" data-status="<?= $item['available'] ? 'true' : 'false' ?>">
+                            <button class="toggle-status" 
+                                    data-id="<?= $item['id'] ?>" 
+                                    data-status="<?= $item['available'] ? 'true' : 'false' ?>"
+                                    data-is-logged-in="<?= $isLoggedIn ? 'true' : 'false' ?>">
                                 Toggle Status
                             </button>
                         </td>
-                        <?php endif; ?>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
         <?php endif; ?>
     </div>
+    
+    <!-- Login Popup -->
+    <div class="login-popup" id="loginPopup">
+        <div class="login-popup-content">
+            <h3>Please Login</h3>
+            <p>You need to be logged in to change menu availability.</p>
+            <div class="login-popup-buttons">
+                <a href="/shokudouMenu2/src/pages/login.html" class="login-btn">Login</a>
+                <button class="cancel-btn" id="cancelLogin">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
     <div class="footer">
         <p>&copy; 2025 Akashi Shokudou. All rights reserved.</p>
         <p>Powered by <a href="https://shokudou.example.com">Shokudou</a></p>
