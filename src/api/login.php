@@ -36,7 +36,7 @@ if (isset($_GET['code'])) {
     setcookie('user_logged_in', 'true', time() + (86400 * 30), "/"); // 30 days
     
     // Redirect to homepage
-    header('Location: /index.php');
+    header('Location: /shokudouMenu2/public/index.php');
     exit;
 } else {
     // If we don't have a code, get authentication URL

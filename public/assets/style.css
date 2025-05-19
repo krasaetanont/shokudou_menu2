@@ -449,3 +449,10 @@ header h1 {
         padding: 8px 12px;
     }
 }
+
+.footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}
