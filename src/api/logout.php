@@ -21,5 +21,5 @@ session_destroy();
 setcookie('user_logged_in', '', time() - 3600, '/');
 
 // Redirect back to the main page
-header('Location: /index.php');
+header('Location: /shokudouMenu2/public/index.php');
 exit;
