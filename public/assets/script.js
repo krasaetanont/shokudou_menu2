@@ -3,8 +3,9 @@
  * Handles real-time status updates for menu items
  */
 document.addEventListener('DOMContentLoaded', function() {
-    // Select all toggle buttons
-    const toggleButtons = document.querySelectorAll('.toggle-status');
+    // Select all status buttons
+    const availableButtons = document.querySelectorAll('.btn-available');
+    const unavailableButtons = document.querySelectorAll('.btn-unavailable');
     
     // Get the login popup
     const loginPopup = document.getElementById('loginPopup');
@@ -36,44 +37,70 @@ document.addEventListener('DOMContentLoaded', function() {
         return false;
     }
     
-    // Add click event listeners to all toggle buttons
-    toggleButtons.forEach(button => {
+    // Add click event listeners to all available buttons
+    availableButtons.forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
-            
-            // Check login status in real-time from cookie instead of relying on data attribute
-            const loggedIn = isUserLoggedIn();
-            
-            if (!loggedIn) {
-                // Show login popup for non-logged in users
-                loginPopup.style.display = 'flex';
-                return;
-            }
-            
-            // Get item data from button attributes
-            const itemId = this.getAttribute('data-id');
-            const currentStatus = this.getAttribute('data-status') === 'true';
-            const newStatus = !currentStatus;
-            
-            // Disable the button temporarily to prevent multiple clicks
-            this.disabled = true;
-            
-            // Update the UI to show processing state
-            this.textContent = 'Updating...';
-            
-            // Send the update request
-            updateMenuItemStatus(itemId, newStatus, this);
+            handleStatusChange(this, true);
         });
     });
+    
+    // Add click event listeners to all unavailable buttons
+    unavailableButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleStatusChange(this, false);
+        });
+    });
+    
+    /**
+     * Handle status change for menu items
+     * 
+     * @param {HTMLElement} buttonElement - Button that was clicked
+     * @param {boolean} newStatus - New availability status to set
+     */
+    function handleStatusChange(buttonElement, newStatus) {
+        // Check login status in real-time from cookie
+        const loggedIn = isUserLoggedIn();
+        
+        if (!loggedIn) {
+            // Show login popup for non-logged in users
+            loginPopup.style.display = 'flex';
+            return;
+        }
+        
+        // Get item data from button attributes
+        const itemId = buttonElement.getAttribute('data-id');
+        const currentStatus = buttonElement.closest('tr').querySelector('.status-indicator').classList.contains('available');
+        
+        // If item already has the requested status, do nothing
+        if (newStatus === currentStatus) {
+            return;
+        }
+        
+        // Disable both buttons temporarily to prevent multiple clicks
+        const row = buttonElement.closest('tr');
+        const availableBtn = row.querySelector('.btn-available');
+        const unavailableBtn = row.querySelector('.btn-unavailable');
+        
+        availableBtn.disabled = true;
+        unavailableBtn.disabled = true;
+        
+        // Show updating state on the clicked button
+        buttonElement.textContent = 'Updating...';
+        
+        // Send the update request
+        updateMenuItemStatus(itemId, newStatus, row);
+    }
     
     /**
      * Send AJAX request to update menu item status
      * 
      * @param {number} itemId - ID of the menu item to update
      * @param {boolean} newStatus - New availability status
-     * @param {HTMLElement} buttonElement - Button that was clicked
+     * @param {HTMLElement} row - Table row containing the item
      */
-    function updateMenuItemStatus(itemId, newStatus, buttonElement) {
+    function updateMenuItemStatus(itemId, newStatus, row) {
         // Create form data for the request
         const formData = new FormData();
         formData.append('item_id', itemId);
@@ -96,18 +123,25 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(data => {
             if (data.success) {
-                // Get the table row and status elements
-                const row = buttonElement.closest('tr');
+                // Get the status elements
                 const statusCell = row.querySelector('.status');
                 const statusIndicator = statusCell.querySelector('.status-indicator');
+                const availableBtn = row.querySelector('.btn-available');
+                const unavailableBtn = row.querySelector('.btn-unavailable');
                 
                 // Update the status text and class
                 statusIndicator.textContent = newStatus ? 'Available' : 'Unavailable';
                 statusIndicator.classList.remove(newStatus ? 'unavailable' : 'available');
                 statusIndicator.classList.add(newStatus ? 'available' : 'unavailable');
                 
-                // Update the button's data-status attribute
-                buttonElement.setAttribute('data-status', newStatus.toString());
+                // Update button states
+                availableBtn.disabled = newStatus;
+                availableBtn.classList.toggle('active', newStatus);
+                availableBtn.textContent = 'Available';
+                
+                unavailableBtn.disabled = !newStatus;
+                unavailableBtn.classList.toggle('active', !newStatus);
+                unavailableBtn.textContent = 'Unavailable';
                 
                 // Add highlight animation
                 row.classList.add('updated');
@@ -118,17 +152,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Show a success notification
                 showNotification('Success!', `Item status updated to ${newStatus ? 'available' : 'unavailable'}.`, 'success');
             } else {
+                // Re-enable buttons on error
+                const availableBtn = row.querySelector('.btn-available');
+                const unavailableBtn = row.querySelector('.btn-unavailable');
+                
+                availableBtn.disabled = false;
+                availableBtn.textContent = 'Available';
+                
+                unavailableBtn.disabled = false;
+                unavailableBtn.textContent = 'Unavailable';
+                
                 showNotification('Update Failed', data.message || 'Unknown error occurred', 'error');
             }
         })
         .catch(error => {
             console.error('Error updating menu item:', error);
+            
+            // Re-enable buttons on error
+            const availableBtn = row.querySelector('.btn-available');
+            const unavailableBtn = row.querySelector('.btn-unavailable');
+            
+            availableBtn.disabled = false;
+            availableBtn.textContent = 'Available';
+            
+            unavailableBtn.disabled = false;
+            unavailableBtn.textContent = 'Unavailable';
+            
             showNotification('Error', error.message || 'Failed to update status', 'error');
-        })
-        .finally(() => {
-            // Re-enable the button and restore text
-            buttonElement.disabled = false;
-            buttonElement.textContent = 'Toggle Status';
         });
     }
     

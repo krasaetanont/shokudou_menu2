@@ -86,6 +86,54 @@ header h1 {
     background-color: var(--primary-color);
     color: white;
 }
+/* Add these styles to style.css */
+
+/* Status Button Styles */
+.action-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.btn-available, .btn-unavailable {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    font-weight: 500;
+    flex: 1;
+}
+
+.btn-available {
+    background-color: var(--available-color);
+    color: white;
+}
+
+.btn-available:hover:not(:disabled) {
+    background-color: #248b7f;
+    transform: translateY(-2px);
+}
+
+.btn-unavailable {
+    background-color: var(--unavailable-color);
+    color: white;
+}
+
+.btn-unavailable:hover:not(:disabled) {
+    background-color: #d45b3d;
+    transform: translateY(-2px);
+}
+
+.btn-available:disabled, .btn-unavailable:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-available.active, .btn-unavailable.active {
+    box-shadow: 0 0 0 2px white, 0 0 0 4px currentColor;
+    font-weight: 700;
+}
 .date {
     font-size: 1.2rem;
     color: var(--secondary-color);

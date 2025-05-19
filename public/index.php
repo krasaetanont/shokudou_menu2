@@ -1,5 +1,4 @@
 <?php
-session_start();
 // First, let's enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -159,11 +158,18 @@ $menuItems = $stmt->fetchAll();
                             </span>
                         </td>
                         <td>
-                            <button class="toggle-status" 
-                                    data-id="<?= $item['id'] ?>" 
-                                    data-status="<?= $item['available'] ? 'true' : 'false' ?>">
-                                Toggle Status
-                            </button>
+                            <div class="action-buttons">
+                                <button class="btn-available <?= $item['available'] ? 'active' : '' ?>" 
+                                        data-id="<?= $item['id'] ?>"
+                                        <?= $item['available'] ? 'disabled' : '' ?>>
+                                    Available
+                                </button>
+                                <button class="btn-unavailable <?= !$item['available'] ? 'active' : '' ?>"
+                                        data-id="<?= $item['id'] ?>"
+                                        <?= !$item['available'] ? 'disabled' : '' ?>>
+                                    Unavailable
+                                </button>
+                            </div>
                         </td>
                     </tr>
                     <?php endforeach; ?>
