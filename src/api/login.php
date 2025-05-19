@@ -1,4 +1,5 @@
 <?php
+// src/api/login.php
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 use Dotenv\Dotenv;
@@ -26,14 +27,19 @@ if (isset($_GET['code'])) {
     $google_oauth = new Google\Service\Oauth2($client);
     $google_account_info = $google_oauth->userinfo->get();
     
-    // Store user info in session
+    // Start session and store user info
     session_start();
     $_SESSION['user_id'] = $google_account_info->id;
     $_SESSION['user_email'] = $google_account_info->email;
     $_SESSION['user_name'] = $google_account_info->name;
     
-    // Set a cookie for easy front-end checking
-    setcookie('user_logged_in', 'true', time() + (86400 * 30), "/"); // 30 days
+    // Set a cookie for easy front-end checking - use httponly false to allow JS to read it
+    setcookie('user_logged_in', 'true', [
+        'expires' => time() + 86400 * 30, // 30 days
+        'path' => '/',
+        'httponly' => false, // Allow JavaScript to read this cookie
+        'samesite' => 'Strict'
+    ]);
     
     // Redirect to homepage
     header('Location: /shokudouMenu2/public/index.php');
@@ -44,3 +50,4 @@ if (isset($_GET['code'])) {
     header('Location: ' . filter_var($auth_url, FILTER_SANITIZE_URL));
     exit;
 }
+//hello
