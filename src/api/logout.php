@@ -17,8 +17,12 @@ if (ini_get("session.use_cookies")) {
 // Destroy the session
 session_destroy();
 
-// Clear the login cookie
-setcookie('user_logged_in', '', time() - 3600, '/');
+// Clear the login cookie - use the same path as when it was set
+setcookie('user_logged_in', '', [
+    'expires' => time() - 3600,
+    'path' => '/shokudouMenu2',
+    'httponly' => false
+]);
 
 // Redirect back to the main page
 header('Location: /shokudouMenu2/public/index.php');

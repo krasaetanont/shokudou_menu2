@@ -1,4 +1,5 @@
 <?php
+// src/api/update_status.php
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 use App\Config\DatabaseConfig;
@@ -6,11 +7,24 @@ use App\Config\DatabaseConfig;
 // Set proper headers
 header('Content-Type: application/json');
 
+// Start the session to get access to session variables
+session_start();
+
 // Initialize response array
 $response = [
     'success' => false,
     'message' => 'Unknown error occurred'
 ];
+
+// Check if the user is logged in
+$isLoggedIn = isset($_SESSION['user_id']) || (isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] === 'true');
+
+if (!$isLoggedIn) {
+    $response['message'] = 'Authentication required';
+    $response['redirect'] = '/shokudouMenu2/src/pages/login.html';
+    echo json_encode($response);
+    exit;
+}
 
 // Check if the request method is POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

@@ -36,6 +36,10 @@ function getDbConnection() {
 // Set default timezone
 date_default_timezone_set('Asia/Tokyo');
 
+// Check if user is logged in from both session and cookie
+$isLoggedIn = (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) || 
+              (isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] === 'true');
+
 // Determine which date to show
 $dateOffset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
 $specificDate = isset($_GET['date']) ? $_GET['date'] : null;
@@ -82,9 +86,6 @@ $formattedDate = $targetDate->format('Y-m-d');
 $stmt = $db->prepare("SELECT id, name, price, available, tag FROM menu WHERE available_date = ? ORDER BY name");
 $stmt->execute([$formattedDate]);
 $menuItems = $stmt->fetchAll();
-
-// Check if user is logged in (simplified for example)
-$isLoggedIn = isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] === 'true';
 ?>
 
 <!DOCTYPE html>
@@ -160,8 +161,7 @@ $isLoggedIn = isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] ==
                         <td>
                             <button class="toggle-status" 
                                     data-id="<?= $item['id'] ?>" 
-                                    data-status="<?= $item['available'] ? 'true' : 'false' ?>"
-                                    data-is-logged-in="<?= $isLoggedIn ? 'true' : 'false' ?>">
+                                    data-status="<?= $item['available'] ? 'true' : 'false' ?>">
                                 Toggle Status
                             </button>
                         </td>
@@ -178,7 +178,7 @@ $isLoggedIn = isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] ==
             <h3>Please Login</h3>
             <p>You need to be logged in to change menu availability.</p>
             <div class="login-popup-buttons">
-                <a href="/shokudouMenu2/src/pages/login.html" class="login-btn">Login</a>
+                <a href="/shokudouMenu2/src/api/login.php" class="login-btn">Login</a>
                 <button class="cancel-btn" id="cancelLogin">Cancel</button>
             </div>
         </div>

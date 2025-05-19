@@ -24,15 +24,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // Check login status from cookie directly
+    function isUserLoggedIn() {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith('user_logged_in=')) {
+                return cookie.substring('user_logged_in='.length) === 'true';
+            }
+        }
+        return false;
+    }
+    
     // Add click event listeners to all toggle buttons
     toggleButtons.forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
             
-            // Check if user is logged in
-            const isLoggedIn = this.getAttribute('data-is-logged-in') === 'true';
+            // Check login status in real-time from cookie instead of relying on data attribute
+            const loggedIn = isUserLoggedIn();
             
-            if (!isLoggedIn) {
+            if (!loggedIn) {
                 // Show login popup for non-logged in users
                 loginPopup.style.display = 'flex';
                 return;
@@ -70,7 +82,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Send AJAX request to the API
         fetch('api/update_status.php', {
             method: 'POST',
-            body: formData
+            body: formData,
+            credentials: 'include' // Include cookies with the request
         })
         .then(response => {
             // Check if the response is OK
