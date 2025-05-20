@@ -109,8 +109,8 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('item_id', itemId);
         formData.append('available', newStatus ? 1 : 0);
         
-        // Send AJAX request to the API
-        fetch('/shokudouMenu2/src/api/update_status.php', {
+        // Fix: Use the correct path to the API endpoint
+        fetch('/src/api/update_status.php', {
             method: 'POST',
             body: formData,
             credentials: 'include' // Include cookies with the request
