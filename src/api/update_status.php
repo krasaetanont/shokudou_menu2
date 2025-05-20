@@ -1,75 +1,81 @@
 <?php
-// src/api/update_status.php
 require_once __DIR__ . '/../../vendor/autoload.php';
-
 use App\Config\DatabaseConfig;
 
-// Set proper headers
 header('Content-Type: application/json');
-
-// Start the session to get access to session variables
 session_start();
 
-// Initialize response array
 $response = [
     'success' => false,
     'message' => 'Unknown error occurred'
 ];
 
-// Check if the user is logged in
-// $isLoggedIn = isset($_SESSION['user_id']) || (isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] === 'true');
-$isLoggedIn = true; // For testing purposes, assume user is logged in
+$isLoggedIn = true; // For now
 
 if (!$isLoggedIn) {
-    $response['message'] = 'Authentication required';
-    $response['redirect'] = '/shokudouMenu2/src/pages/login.html';
-    echo json_encode($response);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Authentication required',
+        'redirect' => '/shokudouMenu2/src/pages/login.html'
+    ]);
     exit;
 }
 
-// Check if the request method is POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Validate input
-    if (isset($_POST['item_id']) && isset($_POST['available'])) {
+    if (isset($_POST['item_id'], $_POST['available'])) {
         $itemId = filter_var($_POST['item_id'], FILTER_VALIDATE_INT);
-        // Fix: Explicitly cast available to boolean
-        $available = (bool)filter_var($_POST['available'], FILTER_VALIDATE_INT);
-        
-        if ($itemId === false) {
-            $response['message'] = 'Invalid item ID provided';
-            echo json_encode($response);
+        $availableInput = $_POST['available'];
+
+        if ($itemId === false || !in_array($availableInput, ['0', '1'], true)) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Invalid parameters'
+            ]);
             exit;
         }
-        
+
+        $available = $availableInput === '1'; // Convert to boolean
+
         try {
-            // Get database connection
             $db = DatabaseConfig::getInstance()->getConnection();
-            
-            // Prepare and execute the update statement
             $stmt = $db->prepare("UPDATE menu SET available = :available WHERE id = :id");
             $result = $stmt->execute([
                 ':available' => $available,
                 ':id' => $itemId
             ]);
-            
+
             if ($result) {
-                $response['success'] = true;
-                $response['message'] = 'Menu item status updated successfully';
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Menu item status updated successfully'
+                ]);
+                exit;
             } else {
-                $response['message'] = 'Failed to update menu item status';
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Failed to update menu item status'
+                ]);
+                exit;
             }
         } catch (Exception $e) {
-            $response['message'] = 'Database error: ' . $e->getMessage();
-            // Log the error for administrative review
             error_log('Update status error: ' . $e->getMessage());
+            echo json_encode([
+                'success' => false,
+                'message' => 'Database error: ' . $e->getMessage()
+            ]);
+            exit;
         }
     } else {
-        $response['message'] = 'Missing required parameters';
+        echo json_encode([
+            'success' => false,
+            'message' => 'Missing required parameters'
+        ]);
+        exit;
     }
 } else {
-    $response['message'] = 'Invalid request method';
+    echo json_encode([
+        'success' => false,
+        'message' => 'Invalid request method'
+    ]);
+    exit;
 }
-
-// Return JSON response
-echo json_encode($response);
-exit;

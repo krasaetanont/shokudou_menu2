@@ -107,10 +107,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Create form data for the request
         const formData = new FormData();
         formData.append('item_id', itemId);
-        formData.append('available', newStatus ? 1 : 0);
+        formData.append('available', newStatus ? '1' : '0');  // <-- as strings
+
         
-        // Fix: Use the correct path to the API endpoint
-        fetch('/src/api/update_status.php', {
+        // Use the correct absolute path to the API endpoint
+        // This was causing the error - the path needs to be absolute and correct
+        fetch('/shokudouMenu2/src/api/update_status.php', {
             method: 'POST',
             body: formData,
             credentials: 'include' // Include cookies with the request
