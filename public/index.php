@@ -36,11 +36,6 @@ function getDbConnection() {
 // Set default timezone
 date_default_timezone_set('Asia/Tokyo');
 
-// Check if user is logged in from both session and cookie
-// $isLoggedIn = (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) || 
-//               (isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] === 'true');
-
-$isLoggedIn = true;
 // Determine which date to show
 $dateOffset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
 $specificDate = isset($_GET['date']) ? $_GET['date'] : null;
@@ -98,17 +93,10 @@ $menuItems = $stmt->fetchAll();
     <link rel="stylesheet" href="assets/style.css">
     <link rel="stylesheet" href="assets/calendar.css">
 </head>
-<body data-logged-in="<?= $isLoggedIn ? 'true' : 'false' ?>">
+<body>
     <div class="container">
         <header>
             <h1>Akashi Shokudou</h1>
-            <div class="loginButton">
-                <?php if ($isLoggedIn): ?>
-                    <a href="/shokudouMenu2/src/api/logout.php">Logout</a>
-                <?php else: ?>
-                    <a href="/shokudouMenu2/src/pages/login.html">Login</a>
-                <?php endif; ?>
-            </div>
         </header>
         <div class="datePart">
             <p class="date">
@@ -139,7 +127,6 @@ $menuItems = $stmt->fetchAll();
                         <th>Price</th>
                         <th>Set</th>
                         <th>Status</th>
-                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -159,37 +146,11 @@ $menuItems = $stmt->fetchAll();
                                 <?= $item['available'] ? 'Available' : 'Unavailable' ?>
                             </span>
                         </td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-available <?= $item['available'] ? 'active' : '' ?>" 
-                                        data-id="<?= $item['id'] ?>"
-                                        <?= $item['available'] ? 'disabled' : '' ?>>
-                                    Available
-                                </button>
-                                <button class="btn-unavailable <?= !$item['available'] ? 'active' : '' ?>"
-                                        data-id="<?= $item['id'] ?>"
-                                        <?= !$item['available'] ? 'disabled' : '' ?>>
-                                    Unavailable
-                                </button>
-                            </div>
-                        </td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
         <?php endif; ?>
-    </div>
-    
-    <!-- Login Popup -->
-    <div class="login-popup" id="loginPopup">
-        <div class="login-popup-content">
-            <h3>Please Login</h3>
-            <p>You need to be logged in to change menu availability.</p>
-            <div class="login-popup-buttons">
-                <a href="/shokudouMenu2/src/api/login.php" class="login-btn">Login</a>
-                <button class="cancel-btn" id="cancelLogin">Cancel</button>
-            </div>
-        </div>
     </div>
     
     <div class="footer">
