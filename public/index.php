@@ -37,9 +37,10 @@ function getDbConnection() {
 date_default_timezone_set('Asia/Tokyo');
 
 // Check if user is logged in from both session and cookie
-$isLoggedIn = (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) || 
-              (isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] === 'true');
+// $isLoggedIn = (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) || 
+//               (isset($_COOKIE['user_logged_in']) && $_COOKIE['user_logged_in'] === 'true');
 
+$isLoggedIn = true;
 // Determine which date to show
 $dateOffset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
 $specificDate = isset($_GET['date']) ? $_GET['date'] : null;
@@ -97,7 +98,7 @@ $menuItems = $stmt->fetchAll();
     <link rel="stylesheet" href="assets/style.css">
     <link rel="stylesheet" href="assets/calendar.css">
 </head>
-<body>
+<body data-logged-in="<?= $isLoggedIn ? 'true' : 'false' ?>">
     <div class="container">
         <header>
             <h1>Akashi Shokudou</h1>

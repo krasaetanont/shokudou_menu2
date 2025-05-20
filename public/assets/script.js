@@ -1,7 +1,3 @@
-/**
- * Shokudou Menu Management Script
- * Handles real-time status updates for menu items
- */
 document.addEventListener('DOMContentLoaded', function() {
     // Select all status buttons
     const availableButtons = document.querySelectorAll('.btn-available');
@@ -25,8 +21,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Check login status from cookie directly
+    // Better way to check login status from cookie and session information
     function isUserLoggedIn() {
+        // First check if PHP has set isLoggedIn flag in the page
+        const loggedInFlag = document.body.getAttribute('data-logged-in');
+        if (loggedInFlag === 'true') {
+            return true;
+        }
+        
+        // Fall back to checking cookies
         const cookies = document.cookie.split(';');
         for (let i = 0; i < cookies.length; i++) {
             const cookie = cookies[i].trim();
@@ -60,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
      * @param {boolean} newStatus - New availability status to set
      */
     function handleStatusChange(buttonElement, newStatus) {
-        // Check login status in real-time from cookie
+        // Check login status in real-time
         const loggedIn = isUserLoggedIn();
         
         if (!loggedIn) {
@@ -107,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('available', newStatus ? 1 : 0);
         
         // Send AJAX request to the API
-        fetch('api/update_status.php', {
+        fetch('/shokudouMenu2/src/api/update_status.php', {
             method: 'POST',
             body: formData,
             credentials: 'include' // Include cookies with the request

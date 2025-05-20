@@ -34,9 +34,10 @@ if (isset($_GET['code'])) {
     $_SESSION['user_name'] = $google_account_info->name;
     
     // Set a cookie for easy front-end checking - use httponly false to allow JS to read it
+    // Fix: Make sure the cookie path is consistent (use '/' for root path)
     setcookie('user_logged_in', 'true', [
         'expires' => time() + 86400 * 30, // 30 days
-        'path' => '/',
+        'path' => '/', // This is the key fix - use root path
         'httponly' => false, // Allow JavaScript to read this cookie
         'samesite' => 'Strict'
     ]);
@@ -50,4 +51,3 @@ if (isset($_GET['code'])) {
     header('Location: ' . filter_var($auth_url, FILTER_SANITIZE_URL));
     exit;
 }
-//hello

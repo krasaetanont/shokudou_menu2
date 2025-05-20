@@ -18,9 +18,10 @@ if (ini_get("session.use_cookies")) {
 session_destroy();
 
 // Clear the login cookie - use the same path as when it was set
+// Fix: Make sure the cookie path matches the path used when setting it
 setcookie('user_logged_in', '', [
     'expires' => time() - 3600,
-    'path' => '/shokudouMenu2',
+    'path' => '/', // This is the key fix - use root path to match login.php
     'httponly' => false
 ]);
 
