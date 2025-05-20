@@ -32,7 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate input
     if (isset($_POST['item_id']) && isset($_POST['available'])) {
         $itemId = filter_var($_POST['item_id'], FILTER_VALIDATE_INT);
-        $available = filter_var($_POST['available'], FILTER_VALIDATE_INT);
+        // Fix: Explicitly cast available to boolean
+        $available = (bool)filter_var($_POST['available'], FILTER_VALIDATE_INT);
         
         if ($itemId === false) {
             $response['message'] = 'Invalid item ID provided';
@@ -47,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Prepare and execute the update statement
             $stmt = $db->prepare("UPDATE menu SET available = :available WHERE id = :id");
             $result = $stmt->execute([
-                ':available' => $available ? true : false,
+                ':available' => $available,
                 ':id' => $itemId
             ]);
             
