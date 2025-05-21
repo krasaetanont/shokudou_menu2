@@ -157,6 +157,7 @@ $menuItems = $stmt->fetchAll();
                         <th>Price</th>
                         <th>Set</th>
                         <th>Status</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -176,11 +177,38 @@ $menuItems = $stmt->fetchAll();
                                 <?= $item['available'] ? 'Available' : 'Unavailable' ?>
                             </span>
                         </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-available <?= $item['available'] ? 'active' : '' ?>" 
+                                        data-id="<?= $item['id'] ?>"
+                                        <?= $item['available'] ? 'disabled' : '' ?>>
+                                    Available
+                                </button>
+                                <button class="btn-unavailable <?= !$item['available'] ? 'active' : '' ?>"
+                                        data-id="<?= $item['id'] ?>"
+                                        <?= !$item['available'] ? 'disabled' : '' ?>>
+                                    Unavailable
+                                </button>
+                            </div>
+                        </td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
         <?php endif; ?>
+    </div>
+    
+    
+    <!-- Login Popup -->
+    <div class="login-popup" id="loginPopup">
+        <div class="login-popup-content">
+            <h3>Please Login</h3>
+            <p>You need to be logged in to change menu availability.</p>
+            <div class="login-popup-buttons">
+                <a href="/shokudouMenu2/src/api/login.php" class="login-btn">Login</a>
+                <button class="cancel-btn" id="cancelLogin">Cancel</button>
+            </div>
+        </div>
     </div>
     
     <div class="footer">
