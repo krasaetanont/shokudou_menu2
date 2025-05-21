@@ -1,13 +1,35 @@
 <?php
-session_start();
 // First, let's enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Make sure the path to the autoloader is correct
 require_once __DIR__ . '/../vendor/autoload.php';
+
+session_start();
+
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
+
+$client = new Google_Client();
+$client->setClientId($_ENV['GOOGLE_CLIENT_ID']);
+$client->setClientSecret($_ENV['GOOGLE_CLIENT_SECRET']);
+$client->setRedirectUri($_ENV['GOOGLE_REDIRECT_URI']);
+
+if ( ! isset($_GET['code'])) {
+    $isLoggedIn = false;
+}
+else {
+    $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
+
+    $client->setAccessToken($token['access_token']);
+
+    $oauth2 = new Google_Service_Oauth2($client);
+
+    $userinfo = $oauth2->userinfo->get();
+    $isLoggedIn = true;
+}
+
 
 // Simple function to safely get a database connection
 function getDbConnection() {
@@ -97,7 +119,15 @@ $menuItems = $stmt->fetchAll();
     <div class="container">
         <header>
             <h1>Akashi Shokudou</h1>
+            <div class="loginButton">
+                <?php if ($isLoggedIn): ?>
+                    <a href="/shokudouMenu2/src/api/logout.php">Logout</a>
+                <?php else: ?>
+                    <a href="/shokudouMenu2/src/pages/login.html">Login</a>
+                <?php endif; ?>
+            </div>
         </header>
+        <p><?= htmlspecialchars($isLoggedIn ? 'Welcome back!' : 'Please log in to view the menu.') ?></p>
         <div class="datePart">
             <p class="date">
                 <span class="date-label"><?= htmlspecialchars($dateLabel) ?></span>
