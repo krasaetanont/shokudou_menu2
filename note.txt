@@ -1,3 +1,59 @@
+ async function askAI(prompt) {
+    // Initialize chat history with the user's prompt.
+    // The Gemini API expects the input in a specific 'contents' format.
+    let chatHistory = [];
+    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+
+    // Construct the payload for the API request.
+    const payload = {
+        contents: chatHistory
+    };
+
+    // The API key is left as an empty string. In the Canvas environment,
+    // this will be automatically provided at runtime.
+    const apiKey = "AIzaSyC8h3EZROLsxWYF1TyBkVwInAbaDWuonvY";
+    // Define the API endpoint for the gemini-2.0-flash model.
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+    try {
+        // Make the POST request to the Gemini API.
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        // Check if the response was successful.
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`API request failed with status ${response.status}: ${JSON.stringify(errorData)}`);
+        }
+
+        // Parse the JSON response.
+        const result = await response.json();
+
+        // Extract the generated text from the response.
+        // The structure of the response needs to be carefully navigated.
+        if (result.candidates && result.candidates.length > 0 &&
+            result.candidates[0].content && result.candidates[0].content.parts &&
+            result.candidates[0].content.parts.length > 0) {
+            const text = result.candidates[0].content.parts[0].text;
+            return text;
+        } else {
+            // Handle cases where the response structure is unexpected or content is missing.
+            throw new Error("Unexpected API response structure or missing content.");
+        }
+    } catch (error) {
+        // Log and re-throw any errors that occur during the fetch operation.
+        console.error("Error calling Gemini API:", error);
+        throw error; // Re-throw to allow the calling code to handle it.
+    }
+}
+
+ 
+ 
     // Select all status buttons
     const availableButtons = document.querySelectorAll('.btn-available');
     const unavailableButtons = document.querySelectorAll('.btn-unavailable');
