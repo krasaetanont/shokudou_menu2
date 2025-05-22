@@ -17,6 +17,7 @@ $client->setRedirectUri($_ENV['GOOGLE_REDIRECT_URI']);
 $client->addScope("email");
 $client->addScope("profile");
 
+
 if (isset($_GET['code'])) {
     // Exchange authorization code for access token
     $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
@@ -25,13 +26,15 @@ if (isset($_GET['code'])) {
     $_SESSION['access_token'] = $token;
     
     // Redirect to the main page
-    header('Location: /shokudouMenu2/public/index.php');
+    header('Location: http://localhost/shokudouMenu2/public/index.php');
     exit();
-} elseif (isset($_SESSION['access_token']) && $_SESSION['isLoggedIn']) {
+} elseif (isset($_SESSION['access_token'])) {
     // User is already authenticated, redirect to the main page
-    header('Location: /shokudouMenu2/public/index.php');
+    header('Location: http://localhost/shokudouMenu2/public/index.php');
     exit();
 } else {
+    
+    // $_SESSION['test'] = 'test';
     // Generate the authentication URL
     $authUrl = $client->createAuthUrl();
     

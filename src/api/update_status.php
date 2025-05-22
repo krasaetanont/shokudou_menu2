@@ -15,25 +15,12 @@ $dotenv->load();
 // Set content type to JSON
 header('Content-Type: application/json');
 
-// For now, let's bypass authentication check since your frontend returns true
-// In production, you should implement proper authentication
-$client = new Google_Client();
-$client->setClientId($_ENV['GOOGLE_CLIENT_ID']);
-$client->setClientSecret($_ENV['GOOGLE_CLIENT_SECRET']);
-$client->setRedirectUri($_ENV['GOOGLE_REDIRECT_URI']);
-
-if ( ! isset($_GET['code'])) {
-    $isLoggedIn = false;
-}
-else {
-    $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
-
-    $client->setAccessToken($token['access_token']);
-
-    $oauth2 = new Google_Service_Oauth2($client);
-
-    $userinfo = $oauth2->userinfo->get();
+if (isset($_SESSION['access_token'])) {
+    // User is logged in
     $isLoggedIn = true;
+} else {
+    // User is not logged in
+    $isLoggedIn = false;
 }
 
 // Check if user is logged in (inverted the logic - it was backwards)

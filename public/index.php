@@ -1,5 +1,7 @@
 <?php
 session_start();
+
+// echo "<pre>Session data: " . print_r($_SESSION, true) . "</pre>";
 // First, let's enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -12,10 +14,10 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
 if (isset($_SESSION['access_token'])) {
-    // User is already authenticated
+    // User is logged in
     $isLoggedIn = true;
 } else {
-    // User is not authenticated
+    // User is not logged in
     $isLoggedIn = false;
 }
 
@@ -114,7 +116,7 @@ $menuItems = $stmt->fetchAll();
                 <?php if ($isLoggedIn): ?>
                     <a href="/shokudouMenu2/src/api/logout.php">Logout</a>
                 <?php else: ?>
-                    <a href="/shokudouMenu2/src/pages/login.html">Login</a>
+                    <a href="/shokudouMenu2/src/pages/login.php">Login</a>
                 <?php endif; ?>
             </div>
         </header>

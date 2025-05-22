@@ -1,3 +1,25 @@
+<?php
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+use Dotenv\Dotenv;
+use Google\Client as Google_Client;
+
+// Load environment variables
+$dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
+$dotenv->load();
+
+// Create a new Google client
+$client = new Google_Client();
+$client->setClientId($_ENV['GOOGLE_CLIENT_ID']);
+$client->setClientSecret($_ENV['GOOGLE_CLIENT_SECRET']);
+$client->setRedirectUri($_ENV['GOOGLE_REDIRECT_URI']);
+$client->addScope("email");
+$client->addScope("profile");
+
+$url = $client->createAuthUrl();
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -50,7 +72,7 @@
     <div class="container">
         <div class="login-container">
             <h1>Login to Shokudou</h1>
-            <a href="/shokudouMenu2/src/api/login.php" class="login-button">
+            <a href="<?= $url ?>" class="login-button">
                 Login with Google
             </a>
         </div>
