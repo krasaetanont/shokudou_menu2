@@ -1,7 +1,6 @@
 <?php
-
-require_once __DIR__ . '/../../vendor/autoload.php';
 session_start();
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 use Dotenv\Dotenv;
 use Google\Client as Google_Client;
@@ -28,7 +27,7 @@ if (isset($_GET['code'])) {
     // Redirect to the main page
     header('Location: /shokudouMenu2/public/index.php');
     exit();
-} elseif (isset($_SESSION['access_token']) && $_SESSION['access_token']) {
+} elseif (isset($_SESSION['access_token']) && $_SESSION['isLoggedIn']) {
     // User is already authenticated, redirect to the main page
     header('Location: /shokudouMenu2/public/index.php');
     exit();

@@ -1,4 +1,5 @@
 <?php
+session_start();
 // First, let's enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -6,28 +7,16 @@ ini_set('display_errors', 1);
 // Make sure the path to the autoloader is correct
 require_once __DIR__ . '/../vendor/autoload.php';
 
-session_start();
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
-$client = new Google_Client();
-$client->setClientId($_ENV['GOOGLE_CLIENT_ID']);
-$client->setClientSecret($_ENV['GOOGLE_CLIENT_SECRET']);
-$client->setRedirectUri($_ENV['GOOGLE_REDIRECT_URI']);
-
-if ( ! isset($_GET['code'])) {
-    $isLoggedIn = false;
-}
-else {
-    $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
-
-    $client->setAccessToken($token['access_token']);
-
-    $oauth2 = new Google_Service_Oauth2($client);
-
-    $userinfo = $oauth2->userinfo->get();
+if (isset($_SESSION['access_token'])) {
+    // User is already authenticated
     $isLoggedIn = true;
+} else {
+    // User is not authenticated
+    $isLoggedIn = false;
 }
 
 
