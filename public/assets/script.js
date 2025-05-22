@@ -38,7 +38,25 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: `id=${itemId}&available=${isAvailable ? 1 : 0}`
         })
-        .then(response => response.json())
+        .then(response => {
+            // Check if response is ok
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            // Check if response has content
+            return response.text().then(text => {
+                if (!text.trim()) {
+                    throw new Error('Empty response from server');
+                }
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    console.error('Server response:', text);
+                    throw new Error('Invalid JSON response from server');
+                }
+            });
+        })
         .then(data => {
             if (data.success) {
                 // Update UI
@@ -52,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             console.error('Error:', error);
-            showNotification('Error', 'An unexpected error occurred', 'error');
+            showNotification('Error', `An unexpected error occurred: ${error.message}`, 'error');
         });
     }
     
@@ -148,8 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function isUserLoggedIn() {
         const loginButton = document.querySelector('.loginButton a');
         // If the button text is "Logout", the user is logged in
-        // return loginButton && loginButton.textContent.trim() === 'Logout';
-        return true; // For testing purposes, always return true
+        return loginButton && loginButton.textContent.trim() === 'Logout';
     }
     
     /**

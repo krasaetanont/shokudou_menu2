@@ -7,9 +7,16 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 // Use the database configuration
 use App\Config\DatabaseConfig;
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+
+// Load environment variables
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
 $dotenv->load();
 
+// Set content type to JSON
+header('Content-Type: application/json');
+
+// For now, let's bypass authentication check since your frontend returns true
+// In production, you should implement proper authentication
 $client = new Google_Client();
 $client->setClientId($_ENV['GOOGLE_CLIENT_ID']);
 $client->setClientSecret($_ENV['GOOGLE_CLIENT_SECRET']);
@@ -29,11 +36,8 @@ else {
     $isLoggedIn = true;
 }
 
-// Set content type to JSON
-header('Content-Type: application/json');
-
-// Check if user is logged in
-if ($isLoggedIn) {
+// Check if user is logged in (inverted the logic - it was backwards)
+if (!$isLoggedIn) {
     echo json_encode([
         'success' => false,
         'message' => 'Authentication required'
@@ -52,7 +56,7 @@ if (!isset($_POST['id']) || !isset($_POST['available'])) {
 
 // Sanitize inputs
 $id = filter_var($_POST['id'], FILTER_SANITIZE_NUMBER_INT);
-$available = (bool) filter_var($_POST['available'], FILTER_VALIDATE_BOOLEAN);
+$available = $_POST['available'] === '1' ? true : false; // Fixed boolean conversion
 
 // Validate ID
 if (!$id || $id <= 0) {
@@ -74,14 +78,16 @@ try {
     
     $result = $stmt->execute();
     
-    // Check if the update was successful
-    if ($result) {
+    // Check if any rows were affected
+    $rowCount = $stmt->rowCount();
+    
+    if ($rowCount > 0) {
         // Success response
         echo json_encode([
             'success' => true,
             'message' => 'Menu item updated successfully',
             'data' => [
-                'id' => $id,
+                'id' => (int)$id,
                 'available' => $available
             ]
         ]);
@@ -99,7 +105,7 @@ try {
     // Send error response
     echo json_encode([
         'success' => false,
-        'message' => 'Database error occurred'
+        'message' => 'Database error occurred: ' . $e->getMessage()
     ]);
 } catch (Exception $e) {
     // Log other errors
@@ -108,6 +114,6 @@ try {
     // Send error response
     echo json_encode([
         'success' => false,
-        'message' => 'An unexpected error occurred'
+        'message' => 'An unexpected error occurred: ' . $e->getMessage()
     ]);
 }
