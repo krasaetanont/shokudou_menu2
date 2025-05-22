@@ -118,7 +118,9 @@ $menuItems = $stmt->fetchAll();
 <body>
     <div class="container">
         <header>
-            <h1>Akashi Shokudou</h1>
+            <a href="/shokudouMenu2/public/index.php">
+                <h1>Akashi Shokudou</h1>
+            </a>
             <div class="loginButton">
                 <?php if ($isLoggedIn): ?>
                     <a href="/shokudouMenu2/src/api/logout.php">Logout</a>
@@ -127,7 +129,6 @@ $menuItems = $stmt->fetchAll();
                 <?php endif; ?>
             </div>
         </header>
-        <p><?= htmlspecialchars($isLoggedIn ? 'Welcome back!' : 'Please log in to view the menu.') ?></p>
         <div class="datePart">
             <p class="date">
                 <span class="date-label"><?= htmlspecialchars($dateLabel) ?></span>

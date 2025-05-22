@@ -65,6 +65,10 @@ header h1 {
     margin-bottom: 10px;
 }
 
+header a {
+    text-decoration: none;
+}
+
 .calendar {
     display: flex;
     justify-content: center;
