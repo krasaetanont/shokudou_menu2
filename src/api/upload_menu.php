@@ -162,7 +162,7 @@ function extractAndInsertFoodInfo(string $pdfText, PDO $db, string $geminiApiKey
         $fileInfo = "The filename is '{$fileName}' which indicates this menu is for {$year}-{$month}. ";
     }
     
-    $prompt = "{$fileInfo}Given the following text from a food list, extract the name, price, date (if available, format as YYYY-MM-DD), and a tag from the following categories: 'Set A', 'Set B', 'カレー', '丼', '中華麺', '和麺', 'ご飯'. 
+    $prompt = "{$fileInfo}Given the following text from a food list, extract the name, price, date (if available, format as YYYY-MM-DD), and a tag from the following categories: 'A ランチ', 'B ランチ', 'カレー', '丼', '中華麺', '和麺', 'ご飯'. 
 
     IMPORTANT: The filename indicates the year and month for this menu. If specific dates are not mentioned in the text for individual items, use the year and month from the filename to generate appropriate dates. For example, if the filename is '2025.06.pdf', items without specific dates should be assigned dates in June 2025 (like 2025-06-01, 2025-06-02, etc.).
 
@@ -191,7 +191,7 @@ function extractAndInsertFoodInfo(string $pdfText, PDO $db, string $geminiApiKey
                     'name' => ['type' => 'STRING'],
                     'price' => ['type' => 'NUMBER'],
                     'date' => ['type' => 'STRING', 'nullable' => true],
-                    'tag' => ['type' => 'STRING', 'enum' => ['Set A', 'Set B', 'カレー', '丼', '中華麺', '和麺', 'ご飯'], 'nullable' => true]
+                    'tag' => ['type' => 'STRING', 'enum' => ['A ランチ', 'B ランチ', 'カレー', '丼', '中華麺', '和麺', 'ご飯'], 'nullable' => true]
                 ],
                 'required' => ['name', 'price']
             ]
