@@ -1,4 +1,59 @@
 document.addEventListener('DOMContentLoaded', function() {
+    const inputFields = document.getElementById('inputField');
+    const uploadButton = document.getElementById('uploadButton');
+    const uploadPopupButton = document.getElementById('uploadMenuButton');
+    uploadPopupButton.addEventListener('click', function(event) {
+        const cancelButton = document.getElementById('cancelUpload');
+        event.preventDefault();
+        // Show the upload menu popup
+        const uploadPopup = document.getElementById('uploadPopup');
+        uploadPopup.style.display = 'flex';
+        cancelButton.addEventListener('click', function(event) {
+            uploadPopup.style.display = 'none';
+        });
+        // Add event listener to the upload button
+        uploadButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            // Check if a file is selected
+            if (inputFields.files.length === 0) {
+                alert('Please select a file to upload.');
+                return;
+            }
+            
+            // Create FormData object to send the file
+            const formData = new FormData();
+            formData.append('file', inputFields.files[0]);
+            
+            // Send AJAX request to upload the file
+            fetch('/shokudouMenu2/src/api/upload_menu.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Show success notification
+                    showNotification('Success', 'File uploaded successfully', 'success');
+                    // Close the popup
+                    uploadPopup.style.display = 'none';
+                } else {
+                    // Show error notification
+                    showNotification('Error', data.message || 'Failed to upload file', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error', `An unexpected error occurred: ${error.message}`, 'error');
+            });
+        });
+    });
+
+
     // Get all available and unavailable buttons
     const availableButtons = document.querySelectorAll('.btn-available');
     const unavailableButtons = document.querySelectorAll('.btn-unavailable');

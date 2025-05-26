@@ -190,7 +190,21 @@ $menuItems = $stmt->fetchAll();
         <?php endif; ?>
     </div>
     
-    
+    <div class="upload-popup-buttons">
+        <a href="#" id="uploadMenuButton" class="upload-btn">Upload Menu Items</a>
+    </div>
+    <!-- upload popup -->
+    <div class="upload-popup" id="uploadPopup">
+        <div class="upload-popup-content">
+            <h3>Upload Menu Items</h3>
+            <p>upload a PDF file </p>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <input type="file" name="menuFile" id="inputField" accept=".pdf" required>
+                <button type="submit" class="upload-button" name="submit" id="uploadButton">Upload</button>
+            </form>
+            <button type="button" class="cancel-btn" id="cancelUpload">Cancel</button>
+        </div>
+    </div>
     <!-- Login Popup -->
     <div class="login-popup" id="loginPopup">
         <div class="login-popup-content">
