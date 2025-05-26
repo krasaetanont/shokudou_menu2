@@ -1,4 +1,35 @@
 <?php
+
+// Start session to check login status
+session_start();
+
+// Require the autoloader
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+// Load environment variables
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
+$dotenv->load();
+
+// Set content type to JSON
+header('Content-Type: application/json');
+
+if (isset($_SESSION['access_token'])) {
+    // User is logged in
+    $isLoggedIn = true;
+} else {
+    // User is not logged in
+    $isLoggedIn = false;
+}
+
+// Check if user is logged in (inverted the logic - it was backwards)
+if (!$isLoggedIn) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Authentication required'
+    ]);
+    exit;
+}
+
 header('Content-Type: application/json');
 
 // Only process POST requests with file upload
