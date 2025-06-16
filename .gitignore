@@ -2,4 +2,8 @@ vendor/
 .env
 *.log
 notuse/
+<<<<<<< HEAD
 menuFile/
+=======
+menuFile/
+>>>>>>> 0274dd3d11c87f6c44747b33ce3124251d17e1c7
