@@ -11,7 +11,7 @@
 
     // The API key is left as an empty string. In the Canvas environment,
     // this will be automatically provided at runtime.
-    const apiKey = "AIzaSyC8h3EZROLsxWYF1TyBkVwInAbaDWuonvY";
+    const apiKey = "";
     // Define the API endpoint for the gemini-2.0-flash model.
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
