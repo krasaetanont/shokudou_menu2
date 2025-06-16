@@ -110,7 +110,7 @@ $menuItems = $stmt->fetchAll();
     <div class="container">
         <header>
             <a href="/team1/toyouke/public/index.php">
-                <h1>Akashi Shokudou</h1>
+                <h1>Toyo<strong>U</strong>ke</h1>
             </a>
             <div class="loginButton">
                 <?php if ($isLoggedIn): ?>
