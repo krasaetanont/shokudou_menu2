@@ -109,14 +109,14 @@ $menuItems = $stmt->fetchAll();
 <body>
     <div class="container">
         <header>
-            <a href="/shokudouMenu2/public/index.php">
+            <a href="/team1/shokudouMenu2/public/index.php">
                 <h1>Akashi Shokudou</h1>
             </a>
             <div class="loginButton">
                 <?php if ($isLoggedIn): ?>
-                    <a href="/shokudouMenu2/src/api/logout.php">Logout</a>
+                    <a href="/team1/shokudouMenu2/src/api/logout.php">Logout</a>
                 <?php else: ?>
-                    <a href="/shokudouMenu2/src/pages/login.php">Login</a>
+                    <a href="/team1/shokudouMenu2/src/pages/login.php">Login</a>
                 <?php endif; ?>
             </div>
         </header>
@@ -211,7 +211,7 @@ $menuItems = $stmt->fetchAll();
             <h3>Please Login</h3>
             <p>You need to be logged in to change menu availability.</p>
             <div class="login-popup-buttons">
-                <a href="/shokudouMenu2/src/api/login.php" class="login-btn">Login</a>
+                <a href="/team1/shokudouMenu2/src/api/login.php" class="login-btn">Login</a>
                 <button class="cancel-btn" id="cancelLogin">Cancel</button>
             </div>
         </div>
@@ -219,7 +219,7 @@ $menuItems = $stmt->fetchAll();
     
     <div class="footer">
         <p>&copy; 2025 Akashi Shokudou. All rights reserved.</p>
-        <p>Powered by <a href="https://shokudou.example.com">Shokudou</a></p>
+        <p>Powered by <a href="/team1/shokudouMenu2/src/api/login.php">Shokudou</a></p>
     </div>
     <script src="assets/script.js"></script>
     <script src="assets/calendar.js"></script>

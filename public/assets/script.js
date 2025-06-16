@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('file', inputFields.files[0]);
             
             // Send AJAX request to upload the file
-            fetch('/shokudouMenu2/src/api/upload_menu.php', {
+            fetch('/team1/shokudouMenu2/src/api/upload_menu.php', {
                 method: 'POST',
                 body: formData
             })
@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Send AJAX request to update status
-        fetch('/shokudouMenu2/src/api/update_status.php', {
+        fetch('/team1/shokudouMenu2/src/api/update_status.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
