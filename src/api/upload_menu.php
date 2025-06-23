@@ -21,7 +21,8 @@ header('Content-Type: application/json');
 //     // User is not logged in
 //     $isLoggedIn = false;
 // }
-$isLoggedIn = true; // For testing purposes, we assume the user is logged in
+
+$isLoggedIn = true; // For testing purposes, set to true
 
 // Check if user is logged in
 if (!$isLoggedIn) {
@@ -285,53 +286,8 @@ function getPdfText(string $pdfFilePath): string {
 // Only process POST requests with file upload
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
     $file = $_FILES['file'];
-    
-    // Enhanced error checking for file upload
-    if ($file['error'] !== UPLOAD_ERR_OK) {
-        $uploadErrors = [
-            UPLOAD_ERR_INI_SIZE => 'The uploaded file exceeds the upload_max_filesize directive in php.ini',
-            UPLOAD_ERR_FORM_SIZE => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form',
-            UPLOAD_ERR_PARTIAL => 'The uploaded file was only partially uploaded',
-            UPLOAD_ERR_NO_FILE => 'No file was uploaded',
-            UPLOAD_ERR_NO_TMP_DIR => 'Missing a temporary folder',
-            UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk',
-            UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the file upload'
-        ];
-        
-        $errorMessage = isset($uploadErrors[$file['error']]) ? $uploadErrors[$file['error']] : 'Unknown upload error';
-        
-        echo json_encode([
-            'success' => false,
-            'message' => 'File upload error: ' . $errorMessage,
-            'error_code' => $file['error']
-        ]);
-        exit;
-    }
-    
-    // Check if file is actually uploaded
-    if (!is_uploaded_file($file['tmp_name'])) {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Security error: File is not a valid uploaded file.'
-        ]);
-        exit;
-    }
-    
-    // Validate file type
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mimeType = finfo_file($finfo, $file['tmp_name']);
-    finfo_close($finfo);
-    
-    if ($mimeType !== 'application/pdf') {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Invalid file type. Only PDF files are allowed. Detected type: ' . $mimeType
-        ]);
-        exit;
-    }
-    
-    // Validate filename pattern
     $pattern = "/^\d{4}\.(0[1-9]|1[0-2])\.pdf$/";
+
     if (!preg_match($pattern, $file['name'])) {
         echo json_encode([
             'success' => false,
@@ -340,31 +296,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
         exit;
     }
 
-    $uploadDir = '/home/team1/public_html/toyouke/menuFile/';
-    
-    // Ensure the upload directory path ends with a slash
+    $uploadDir = '/home/team1/public_html/toyouke/menuFile';
     $uploadDir = rtrim($uploadDir, '/') . '/';
-    
-    // Check if upload directory exists and is writable
-    if (!is_dir($uploadDir)) {
-        if (!mkdir($uploadDir, 0755, true)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Failed to create upload directory.'
-            ]);
-            exit;
-        }
-    }
-    
-    if (!is_writable($uploadDir)) {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Upload directory is not writable. Please check permissions.'
-        ]);
-        exit;
-    }
-    
     $uploadFile = $uploadDir . basename($file['name']);
+
 
     if (file_exists($uploadFile)) {
         echo json_encode([
@@ -374,17 +309,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
         exit;
     }
 
-    // Move uploaded file with better error handling
+    // Move uploaded file
     if (move_uploaded_file($file['tmp_name'], $uploadFile)) {
-        // Verify the file was actually moved and exists
-        if (!file_exists($uploadFile)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'File upload failed: File was not properly saved.'
-            ]);
-            exit;
-        }
-        
         // File uploaded successfully, now process it
         $processingResult = processUploadedMenu($uploadFile);
         
@@ -406,31 +332,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
             ]);
         }
     } else {
-        // Get more detailed error information
-        $error = error_get_last();
-        $errorMessage = 'Error uploading file.';
-        
-        if ($error) {
-            $errorMessage .= ' Last error: ' . $error['message'];
-        }
-        
-        // Additional checks for common issues
-        if (!is_readable($file['tmp_name'])) {
-            $errorMessage .= ' Temporary file is not readable.';
-        }
-        
         echo json_encode([
             'success' => false,
-            'message' => $errorMessage,
-            'debug_info' => [
-                'upload_dir' => $uploadDir,
-                'upload_file' => $uploadFile,
-                'tmp_name' => $file['tmp_name'],
-                'tmp_name_exists' => file_exists($file['tmp_name']),
-                'tmp_name_readable' => is_readable($file['tmp_name']),
-                'upload_dir_writable' => is_writable($uploadDir),
-                'upload_dir_exists' => is_dir($uploadDir)
-            ]
+            'message' => 'Error uploading file.'
         ]);
     }
 } else {

@@ -15,14 +15,14 @@ $dotenv->load();
 // Set content type to JSON
 header('Content-Type: application/json');
 
-if (isset($_SESSION['access_token'])) {
-    // User is logged in
-    $isLoggedIn = true;
-} else {
-    // User is not logged in
-    $isLoggedIn = false;
-}
-
+// if (isset($_SESSION['access_token'])) {
+//     // User is logged in
+//     $isLoggedIn = true;
+// } else {
+//     // User is not logged in
+//     $isLoggedIn = false;
+// }
+$isLoggedIn = true; // For testing purposes, we assume the user is logged in
 // Check if user is logged in (inverted the logic - it was backwards)
 if (!$isLoggedIn) {
     echo json_encode([
