@@ -13,14 +13,14 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
-if (isset($_SESSION['access_token'])) {
-    // User is logged in
-    $isLoggedIn = true;
-} else {
-    // User is not logged in
-    $isLoggedIn = false;
-}
-
+// if (isset($_SESSION['access_token'])) {
+//     // User is logged in
+//     $isLoggedIn = true;
+// } else {
+//     // User is not logged in
+//     $isLoggedIn = false;
+// }
+$isLoggedIn = true; // For testing purposes, we assume the user is logged in
 
 // Simple function to safely get a database connection
 function getDbConnection() {
