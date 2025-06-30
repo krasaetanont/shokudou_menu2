@@ -73,7 +73,7 @@ AddDefaultCharset UTF-8
     php_value post_max_size 32M
     php_value max_execution_time 300
     php_value max_input_time 300
-    php_flag display_errors Off
+    php_flag display_errors On
     php_flag log_errors On
 </IfModule>
 
