@@ -219,7 +219,7 @@ $menuItems = $stmt->fetchAll();
 
     <div class="footer">
     <p>&copy; 2025 Akashi Shokudou. All rights reserved.</p>
-    <p>Powered by <a href="/team1/toyouke/src/api/login.php">Shokudou</a></p>
+    <p>Powered by <a href="/team1/toyouke/public/index.php">Shokudou</a></p>
     <p>
         **お問い合わせ先:**<br>
         〒673-0892 兵庫県明石市本町1丁目1-1<br>
