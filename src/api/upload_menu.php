@@ -14,13 +14,15 @@ use App\Config\DatabaseConfig;
 // Set content type to JSON
 header('Content-Type: application/json');
 
-if (isset($_SESSION['access_token'])) {
-    // User is logged in
-    $isLoggedIn = true;
-} else {
-    // User is not logged in
-    $isLoggedIn = false;
-}
+// if (isset($_SESSION['access_token'])) {
+//     // User is logged in
+//     $isLoggedIn = true;
+// } else {
+//     // User is not logged in
+//     $isLoggedIn = false;
+// }
+
+$isLoggedIn = true; // For testing purposes, set to true
 
 // Check if user is logged in
 if (!$isLoggedIn) {

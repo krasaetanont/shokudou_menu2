@@ -13,13 +13,14 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
-if (isset($_SESSION['access_token'])) {
-    // User is logged in
-    $isLoggedIn = true;
-} else {
-    // User is not logged in
-    $isLoggedIn = false;
-}
+// if (isset($_SESSION['access_token'])) {
+//     // User is logged in
+//     $isLoggedIn = true;
+// } else {
+//     // User is not logged in
+//     $isLoggedIn = false;
+// }
+$isLoggedIn = true;
 
 
 // Simple function to safely get a database connection
@@ -145,7 +146,7 @@ $menuItems = $stmt->fetchAll();
             <table id="menu-table">
                 <thead>
                     <tr>
-                        <th>Item</th>
+                        <th style="min-width:200px">Item</th>
                         <th>Price</th>
                         <th>Set</th>
                         <th>Status</th>
@@ -165,8 +166,8 @@ $menuItems = $stmt->fetchAll();
                             <?php endif; ?>
                         </td>
                         <td class="status">
-                            <span class="status-indicator <?= $item['available'] ? 'available' : 'unavailable' ?>">
-                                <?= $item['available'] ? 'Available' : 'Unavailable' ?>
+                            <span class="status-indicator <?= $item['available'] ? '〇' : 'X' ?>">
+                                <?= $item['available'] ? '〇' : 'X' ?>
                             </span>
                         </td>
                         <td>
