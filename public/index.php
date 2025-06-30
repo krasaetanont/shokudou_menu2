@@ -216,10 +216,18 @@ $menuItems = $stmt->fetchAll();
             </div>
         </div>
     </div>
-    
+
     <div class="footer">
-        <p>&copy; 2025 Akashi Shokudou. All rights reserved.</p>
-        <p>Powered by <a href="/team1/toyouke/src/api/login.php">Shokudou</a></p>
+    <p>&copy; 2025 Akashi Shokudou. All rights reserved.</p>
+    <p>Powered by <a href="/team1/toyouke/src/api/login.php">Shokudou</a></p>
+    <p>
+        **お問い合わせ先:**<br>
+        〒673-0892 兵庫県明石市本町1丁目1-1<br>
+        電話: 078-123-4567 (代表)
+    </p>
+    <p>
+        **運営元:**<br>
+        明石食堂運営事務局 </p>
     </div>
     <script src="assets/script.js"></script>
     <script src="assets/calendar.js"></script>
