@@ -591,8 +591,32 @@ header a {
 }
 
 .footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
+    /* Based on .l-footer .coloredArea for background and text color */
+    background-color: #981d30; /* Dark red background */
+    color: #FFF;               /* White text color */
+    padding: 20px;              /* Some padding around the content */
+    text-align: center;         /* Center align all text within the footer */
+    font-size: 14px;            /* General font size for readability */
+    line-height: 1.6;           /* Line height for better readability */
+}
+
+.footer p {
+    margin-bottom: 10px; /* Space out paragraphs */
+}
+
+.footer p:last-child {
+    margin-bottom: 0; /* No margin below the last paragraph */
+}
+
+.footer a {
+    color: #FFF; /* White links */
+    text-decoration: underline; /* Underline links for clarity */
+}
+
+.footer a:hover {
+    color: #EBD2D2; /* Lighter color on hover, similar to original footer links */
+}
+
+.footer p strong {
+    font-weight: bold; /* Ensure bold text remains bold */
 }
