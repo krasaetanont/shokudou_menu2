@@ -14,13 +14,13 @@ use App\Config\DatabaseConfig;
 // Set content type to JSON
 header('Content-Type: application/json');
 
-// if (isset($_SESSION['access_token'])) {
-//     // User is logged in
-//     $isLoggedIn = true;
-// } else {
-//     // User is not logged in
-//     $isLoggedIn = false;
-// }
+if (isset($_SESSION['access_token'])) {
+    // User is logged in
+    $isLoggedIn = true;
+} else {
+    // User is not logged in
+    $isLoggedIn = false;
+}
 
 $isLoggedIn = true; // For testing purposes, set to true
 
@@ -168,7 +168,7 @@ function extractAndInsertFoodInfo(string $pdfText, PDO $db, string $geminiApiKey
 
     IMPORTANT: The filename indicates the year and month for this menu. If specific dates are not mentioned in the text for individual items, use the year and month from the filename to generate appropriate dates. For example, if the filename is '2025.06.pdf', items without specific dates should be assigned dates in June 2025 (like 2025-06-01, 2025-06-02, etc.).
 
-    If a tag cannot be determined from the text, leave it null. Provide the output as a JSON array of objects.
+    If a tag cannot be determined from the text, leave it null. Provide the output as a JSON array of objects. For every weekday, ensure you find at least 8 items covering these categories: 'A ランチ', 'B ランチ', 'カレー', '丼', '中華麺', '和麺', 'ご飯'.  if you cannot find items according to the categories, please put xxx in the empty filds.
 
     Example expected JSON structure:
     [

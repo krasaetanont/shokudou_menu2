@@ -13,14 +13,14 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
-// if (isset($_SESSION['access_token'])) {
-//     // User is logged in
-//     $isLoggedIn = true;
-// } else {
-//     // User is not logged in
-//     $isLoggedIn = false;
-// }
-$isLoggedIn = true;
+if (isset($_SESSION['access_token'])) {
+    // User is logged in
+    $isLoggedIn = true;
+} else {
+    // User is not logged in
+    $isLoggedIn = false;
+}
+// $isLoggedIn = true;
 
 
 // Simple function to safely get a database connection
@@ -157,7 +157,7 @@ $menuItems = $stmt->fetchAll();
                     <?php foreach ($menuItems as $item): ?>
                     <tr data-id="<?= $item['id'] ?>">
                         <td><?= htmlspecialchars($item['name']) ?></td>
-                        <td>¥<?= number_format($item['price']/100, 0) ?></td>
+                        <td>¥<?= number_format($item['price']) ?></td>
                         <td>
                             <?php if (!empty($item['tag'])): ?>
                                 <span class="tag"><?= htmlspecialchars($item['tag']) ?></span>
@@ -219,8 +219,14 @@ $menuItems = $stmt->fetchAll();
     </div>
     
     <div class="footer">
-        <p>&copy; 2025 Akashi Shokudou. All rights reserved.</p>
-        <p>Powered by <a href="https://shokudou.example.com">Shokudou</a></p>
+    <p>Powered by <a href="/team1/toyouke/src/api/login.php">Toyouke</a></p>
+    <p>
+        **問い合わせ先**<br>
+        e2103@s.akashi.ac.jp<br>
+        e2123@s.akashi.ac.jp<br>
+        e2133@s.akashi.ac.jp<br>
+        e2153@s.akashi.ac.jp<br>
+    </p>
     </div>
     <script src="assets/script.js"></script>
     <script src="assets/calendar.js"></script>

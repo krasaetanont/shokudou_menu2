@@ -144,8 +144,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const statusIndicator = statusCell.querySelector('.status-indicator');
         
         // Update status text and class
-        statusIndicator.textContent = isAvailable ? 'Available' : 'Unavailable';
-        statusIndicator.className = 'status-indicator ' + (isAvailable ? 'available' : 'unavailable');
+        statusIndicator.textContent = isAvailable ? '◯' : 'x';
+        statusIndicator.className = 'status-indicator ' + (isAvailable ? '◯' : 'x');
         
         // Update buttons
         const availableBtn = row.querySelector('.btn-available');
@@ -173,6 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function showNotification(title, message, type = 'info') {
         // Create notification container if it doesn't exist
         let container = document.querySelector('.notification-container');
+        console.log(message)
         if (!container) {
             container = document.createElement('div');
             container.className = 'notification-container';
