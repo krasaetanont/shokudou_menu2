@@ -592,7 +592,7 @@ header a {
 
 .footer {
     /* Based on .l-footer .coloredArea for background and text color */
-    background-color: #981d30; /* Dark red background */
+    background-color: #d62c3b; /* Dark red background */
     color: #FFF;               /* White text color */
     padding: 20px;              /* Some padding around the content */
     text-align: center;         /* Center align all text within the footer */
