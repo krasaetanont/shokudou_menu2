@@ -124,12 +124,15 @@ function callGeminiApi(string $prompt, array $generationConfig, string $apiKey) 
 
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
     curl_close($ch);
 
     if ($response === false) {
         error_log("cURL error: " . curl_error($ch));
         return false;
     }
+
+    error_log("Gemini API response(HTTP $httpCode):\n " . $response);
 
     if ($httpCode !== 200) {
         error_log("Gemini API error (HTTP $httpCode): " . $response);
@@ -140,6 +143,7 @@ function callGeminiApi(string $prompt, array $generationConfig, string $apiKey) 
 
     if (json_last_error() !== JSON_ERROR_NONE) {
         error_log("JSON decode error: " . json_last_error_msg());
+        error_log("Problematic JSON strign: " . substr($response, 0, 500) . '...');
         return false;
     }
 
@@ -164,11 +168,11 @@ function extractAndInsertFoodInfo(string $pdfText, PDO $db, string $geminiApiKey
         $fileInfo = "The filename is '{$fileName}' which indicates this menu is for {$year}-{$month}. ";
     }
     
-    $prompt = "{$fileInfo}Given the following text from a food list, extract the name, price, date (if available, format as YYYY-MM-DD), and a tag from the following categories: 'A ランチ', 'B ランチ', 'カレー', '丼', '中華麺', '和麺', 'ご飯'. 
+    $prompt = "{$fileInfo}Given the following text from a food list, extract the name, price, date (if available, format as YYYY-MM-DD), and a tag from the following categories: 'A ランチ', 'B ランチ', 'カレー', '丼', '中華麺', '和麺'. 
 
     IMPORTANT: The filename indicates the year and month for this menu. If specific dates are not mentioned in the text for individual items, use the year and month from the filename to generate appropriate dates. For example, if the filename is '2025.06.pdf', items without specific dates should be assigned dates in June 2025 (like 2025-06-01, 2025-06-02, etc.).
 
-    If a tag cannot be determined from the text, leave it null. Provide the output as a JSON array of objects. For every weekday, ensure you find at least 8 items covering these categories: 'A ランチ', 'B ランチ', 'カレー', '丼', '中華麺', '和麺', 'ご飯'.  if you cannot find items according to the categories, please put xxx in the empty filds.
+    If a tag cannot be determined from the text, leave it null. Provide the output as a JSON array of objects. 
 
     Example expected JSON structure:
     [
@@ -207,7 +211,21 @@ function extractAndInsertFoodInfo(string $pdfText, PDO $db, string $geminiApiKey
     if ($geminiResponse &&
         isset($geminiResponse['candidates'][0]['content']['parts'][0]['text'])) {
         $jsonString = $geminiResponse['candidates'][0]['content']['parts'][0]['text'];
-        $extractedData = json_decode($jsonString, true);
+        
+        // Clean and fix the JSON string
+        $cleanedJsonString = cleanAndFixJson($jsonString);
+        
+        if ($cleanedJsonString === false) {
+            error_log("Failed to fix incomplete JSON response");
+            return [
+                'success' => false,
+                'message' => 'Failed to parse incomplete JSON response from Gemini API.',
+                'inserted_count' => 0,
+                'errors' => ['JSON parsing failed after cleanup attempts']
+            ];
+        }
+        
+        $extractedData = json_decode($cleanedJsonString, true);
 
         if (json_last_error() === JSON_ERROR_NONE && is_array($extractedData)) {
             // Prepare the SQL INSERT statement
@@ -248,9 +266,10 @@ function extractAndInsertFoodInfo(string $pdfText, PDO $db, string $geminiApiKey
 
         } else {
             error_log("Failed to decode JSON from Gemini response or response is not an array: " . json_last_error_msg());
+            error_log("Cleaned JSON string: " . $cleanedJsonString);
             return [
                 'success' => false,
-                'message' => 'Failed to parse Gemini API response.',
+                'message' => 'Failed to parse Gemini API response after cleanup.',
                 'inserted_count' => 0,
                 'errors' => $errors
             ];
@@ -266,6 +285,167 @@ function extractAndInsertFoodInfo(string $pdfText, PDO $db, string $geminiApiKey
     }
 }
 
+/**
+ * Clean and fix incomplete JSON string from AI response
+ * 
+ * @param string $jsonString The raw JSON string from AI
+ * @return string|false The cleaned JSON string or false if unfixable
+ */
+function cleanAndFixJson(string $jsonString): string|false {
+    // Remove escape characters and trim
+    $cleanedJsonString = stripslashes($jsonString);
+    $cleanedJsonString = trim($cleanedJsonString, "\r\n\t ");
+    
+    // Remove any markdown code block markers if present
+    $cleanedJsonString = preg_replace('/^```json\s*/', '', $cleanedJsonString);
+    $cleanedJsonString = preg_replace('/\s*```$/', '', $cleanedJsonString);
+    
+    // Log the original response for debugging
+    error_log("Original JSON response: " . substr($jsonString, 0, 500) . "...");
+    error_log("Cleaned JSON response: " . substr($cleanedJsonString, 0, 500) . "...");
+    
+    // Try to parse as-is first
+    $testDecode = json_decode($cleanedJsonString, true);
+    if (json_last_error() === JSON_ERROR_NONE && is_array($testDecode)) {
+        return $cleanedJsonString;
+    }
+    
+    // If JSON is incomplete, try to fix it
+    $fixedJson = fixIncompleteJson($cleanedJsonString);
+    
+    if ($fixedJson !== false) {
+        // Test the fixed JSON
+        $testDecode = json_decode($fixedJson, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($testDecode)) {
+            error_log("Successfully fixed incomplete JSON");
+            return $fixedJson;
+        }
+    }
+    
+    // If still not valid, try to extract partial data
+    $partialJson = extractPartialJson($cleanedJsonString);
+    if ($partialJson !== false) {
+        error_log("Successfully extracted partial JSON data");
+        return $partialJson;
+    }
+    
+    return false;
+}
+
+/**
+ * Attempt to fix incomplete JSON by adding missing closing brackets/braces
+ * 
+ * @param string $jsonString The incomplete JSON string
+ * @return string|false The fixed JSON string or false if unfixable
+ */
+function fixIncompleteJson(string $jsonString): string|false {
+    // Count opening and closing brackets/braces
+    $openSquareBrackets = substr_count($jsonString, '[');
+    $closeSquareBrackets = substr_count($jsonString, ']');
+    $openCurlyBrackets = substr_count($jsonString, '{');
+    $closeCurlyBrackets = substr_count($jsonString, '}');
+    
+    // Calculate missing brackets
+    $missingSquareBrackets = $openSquareBrackets - $closeSquareBrackets;
+    $missingCurlyBrackets = $openCurlyBrackets - $closeCurlyBrackets;
+    
+    // If we have missing brackets, try to add them
+    if ($missingSquareBrackets > 0 || $missingCurlyBrackets > 0) {
+        $fixedJson = $jsonString;
+        
+        // Remove any trailing comma before adding closing brackets
+        $fixedJson = rtrim($fixedJson, " \t\n\r\0\x0B,");
+        
+        // Add missing closing curly braces first (for objects)
+        for ($i = 0; $i < $missingCurlyBrackets; $i++) {
+            $fixedJson .= '}';
+        }
+        
+        // Add missing closing square brackets (for arrays)
+        for ($i = 0; $i < $missingSquareBrackets; $i++) {
+            $fixedJson .= ']';
+        }
+        
+        return $fixedJson;
+    }
+    
+    return false;
+}
+
+/**
+ * Extract partial JSON data from incomplete response
+ * 
+ * @param string $jsonString The incomplete JSON string
+ * @return string|false Valid JSON string with partial data or false if no data found
+ */
+function extractPartialJson(string $jsonString): string|false {
+    // Try to find complete objects within the incomplete JSON
+    preg_match_all('/\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/', $jsonString, $matches);
+    
+    if (!empty($matches[0])) {
+        $validObjects = [];
+        
+        foreach ($matches[0] as $match) {
+            $decoded = json_decode($match, true);
+            if (json_last_error() === JSON_ERROR_NONE && 
+                isset($decoded['name']) && isset($decoded['price'])) {
+                $validObjects[] = $decoded;
+            }
+        }
+        
+        if (!empty($validObjects)) {
+            return json_encode($validObjects);
+        }
+    }
+    
+    // If no complete objects found, try to extract individual fields
+    return extractFieldsFromIncompleteJson($jsonString);
+}
+
+/**
+ * Extract individual fields from very incomplete JSON
+ * 
+ * @param string $jsonString The incomplete JSON string
+ * @return string|false Valid JSON string with extracted data or false if no data found
+ */
+function extractFieldsFromIncompleteJson(string $jsonString): string|false {
+    $extractedItems = [];
+    
+    // Look for name and price patterns
+    preg_match_all('/"name"\s*:\s*"([^"]+)"/', $jsonString, $nameMatches);
+    preg_match_all('/"price"\s*:\s*(\d+)/', $jsonString, $priceMatches);
+    preg_match_all('/"date"\s*:\s*"([^"]*)"/', $jsonString, $dateMatches);
+    preg_match_all('/"tag"\s*:\s*"([^"]*)"/', $jsonString, $tagMatches);
+    
+    if (!empty($nameMatches[1]) && !empty($priceMatches[1])) {
+        $count = min(count($nameMatches[1]), count($priceMatches[1]));
+        
+        for ($i = 0; $i < $count; $i++) {
+            $item = [
+                'name' => $nameMatches[1][$i],
+                'price' => (int)$priceMatches[1][$i]
+            ];
+            
+            // Add date if available
+            if (isset($dateMatches[1][$i]) && !empty($dateMatches[1][$i])) {
+                $item['date'] = $dateMatches[1][$i];
+            }
+            
+            // Add tag if available
+            if (isset($tagMatches[1][$i]) && !empty($tagMatches[1][$i])) {
+                $item['tag'] = $tagMatches[1][$i];
+            }
+            
+            $extractedItems[] = $item;
+        }
+        
+        if (!empty($extractedItems)) {
+            return json_encode($extractedItems);
+        }
+    }
+    
+    return false;
+}
 /**
  * Extract text from PDF file
  * 

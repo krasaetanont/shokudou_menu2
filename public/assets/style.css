@@ -600,7 +600,9 @@ header a {
     text-align: center;         /* Center align all text within the footer */
     font-size: 14px;            /* General font size for readability */
     line-height: 1.6;           /* Line height for better readability */
-    margin-top: 100px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;                /* Full width footer */
 }
 
 .footer p {

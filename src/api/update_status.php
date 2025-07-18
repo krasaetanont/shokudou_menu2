@@ -22,7 +22,7 @@ if (isset($_SESSION['access_token'])) {
     // User is not logged in
     $isLoggedIn = false;
 }
-// $isLoggedIn = true;
+$isLoggedIn = true;
 
 
 // Check if user is logged in (inverted the logic - it was backwards)

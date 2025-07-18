@@ -20,7 +20,7 @@ if (isset($_SESSION['access_token'])) {
     // User is not logged in
     $isLoggedIn = false;
 }
-// $isLoggedIn = true;
+$isLoggedIn = true;
 
 
 // Simple function to safely get a database connection
